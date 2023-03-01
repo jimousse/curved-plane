@@ -2,6 +2,7 @@ import glsl from 'vite-plugin-glsl';
 
 export default {
   plugins: [glsl()],
+  publicDir: '../public/',
   root: 'src/',
   base: './',
   server: {

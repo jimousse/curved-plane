@@ -3,6 +3,15 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as dat from 'lil-gui';
 
+const textureLoader = new THREE.TextureLoader();
+
+const texture = textureLoader.load('/s_parole3_blank.png');
+
+texture.wrapS = 1000;
+texture.wrapT = 1000;
+texture.repeat.set(1, 1);
+texture.offset.setX(0.5);
+
 // Debug
 const gui = new dat.GUI();
 gui.hide();
@@ -16,21 +25,34 @@ const canvas = document.querySelector('canvas.webgl');
 // Scene
 const scene = new THREE.Scene();
 
+const axesHelper = new THREE.AxesHelper(5);
+// scene.add(axesHelper);
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+scene.add(ambientLight);
+
+const pointLight = new THREE.PointLight(0xffffff, 10);
+pointLight.position.x = 3;
+pointLight.position.y = 3;
+pointLight.position.z = 3;
+// pointLight.lookAt(new THREE.Vector3(0, 0, 0));
+scene.add(pointLight);
+
 const geometry = new THREE.SphereGeometry(1, 30, 30);
-const material = new THREE.MeshBasicMaterial({
+const material = new THREE.MeshStandardMaterial({
   color: 0x00ff00,
   wireframe: true,
 });
 const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+// scene.add(mesh);
 
-let numberOfPoints = 10;
+let numberOfPoints = 20;
 const curvePoints = [];
 for (let i = 0; i < numberOfPoints; i++) {
   let theta = (i / numberOfPoints) * 2 * Math.PI;
   curvePoints.push(
     new THREE.Vector3().setFromSphericalCoords(
-      1,
+      0.5 + Math.random(),
       Math.PI / 2 + (Math.random() - 0.5),
       theta
     )
@@ -50,7 +72,7 @@ const curveMaterial = new THREE.LineBasicMaterial({ color: 0xff0000 });
 // // Create the final object to add to the scene
 const curveObject = new THREE.Line(curveGeometry, curveMaterial);
 
-scene.add(curveObject);
+// scene.add(curveObject);
 
 let num = 1000;
 let frenetFrames = curve.computeFrenetFrames(num, true);
@@ -75,10 +97,12 @@ finalPoints[num + 1].copy(finalPoints[2 * num + 1]);
 
 tempPlane.setFromPoints(finalPoints);
 
-let tempMaterial = new THREE.MeshBasicMaterial({
-  color: 0x0000ff,
-  wireframe: true,
+let tempMaterial = new THREE.MeshStandardMaterial({
+  roughness: 0.65,
+  metalness: 0.25,
+  map: texture,
   side: THREE.DoubleSide,
+  alphaTest: true,
 });
 
 let finalMesh = new THREE.Mesh(tempPlane, tempMaterial);
@@ -142,6 +166,8 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+
+  tempMaterial.map.offset.setX(elapsedTime * 0.2);
 
   // Update controls
   controls.update();
