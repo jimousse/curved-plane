@@ -2,6 +2,8 @@ import './style.css';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as dat from 'lil-gui';
+import vertexShader from './shaders/vertex.glsl';
+import fragmentShader from './shaders/fragment.glsl';
 
 // Debug
 const gui = new dat.GUI();
@@ -64,9 +66,11 @@ let finalPoints = [];
 
 dimensions.forEach((d) => {
   for (let i = 0; i <= num; i++) {
-    point = spacedPoints[i];
-    binormalShift.add(frenetFrames.binormals[i]).multiplyScalar(d);
-    finalPoints.push(new THREE.Vector3().copy(point).add(binormalShift));
+    const currentSpacedPoint = new THREE.Vector3().copy(spacedPoints[i]);
+    const binormalShift = new THREE.Vector3()
+      .copy(frenetFrames.binormals[i])
+      .multiplyScalar(d);
+    finalPoints.push(currentSpacedPoint.add(binormalShift));
   }
 });
 
@@ -75,10 +79,16 @@ finalPoints[num + 1].copy(finalPoints[2 * num + 1]);
 
 tempPlane.setFromPoints(finalPoints);
 
-let tempMaterial = new THREE.MeshBasicMaterial({
-  color: 0x0000ff,
-  wireframe: true,
+let tempMaterial = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+  },
+  vertexShader: vertexShader,
+  fragmentShader: fragmentShader,
+  wireframe: false,
   side: THREE.DoubleSide,
+  transparent: true,
+  depthWrite: false,
 });
 
 let finalMesh = new THREE.Mesh(tempPlane, tempMaterial);
@@ -142,7 +152,7 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-
+  tempMaterial.uniforms.uTime.value = elapsedTime;
   // Update controls
   controls.update();
 
