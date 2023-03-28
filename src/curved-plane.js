@@ -65,12 +65,12 @@ const createCurvedPlane = (curveOptions, materialOptions) => {
 };
 
 export const createCurvedPlanes = () => {
-  const numOfPlanes = 50;
+  const numOfPlanes = 75;
   const planeGroup = new THREE.Group();
 
   for (let i = 0; i < numOfPlanes; i++) {
     const curveOptions = {
-      radius: Math.random() * 20 + 1,
+      radius: Math.random() * 30,
       phi: (Math.PI / 2) * Math.random(),
       isVertical: Math.random() - 0.5 > 0,
       amplitude: 0.5 + Math.random(),
@@ -79,7 +79,7 @@ export const createCurvedPlanes = () => {
       color: [Math.random(), Math.random(), Math.random()],
       speed: Math.random() * 0.5,
       transparentPortion: Math.random() * 0.9,
-      width: 0.1 + Math.random() * 0.1,
+      width: 0.5 * Math.random() + 0.1,
     };
     const plane = createCurvedPlane(curveOptions, materialOptions);
     planeGroup.add(plane);
