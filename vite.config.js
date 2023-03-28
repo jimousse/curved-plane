@@ -9,7 +9,7 @@ export default {
     open: true,
   },
   build: {
-    outDir: '../docs',
+    outDir: '../dist',
     emptyOutDir: true,
     sourcemap: true,
   },
